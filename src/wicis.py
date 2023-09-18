@@ -5,7 +5,7 @@ import time
 import getpass
 import pyinputplus as pyip
 
-# all about data
+# all about data (csv.)
 def get_db():
     """
     Fungsi ini digunakan untuk extract data dari csv sebagai reader ('r')
@@ -31,12 +31,10 @@ def get_db():
             database.update({prod_id: [prod_id, name, brand, series, type, int(qty), int(price), int(cogs)]})
 
     return database
-
 def save(database):
      with open(PATH, 'w', newline='') as file:
         dataWriter = csv.writer(file, delimiter=';')
         dataWriter.writerows(database.values())  
-
 
 #initiate login
 def loginput(max_attemps=3): 
@@ -60,6 +58,13 @@ def loginput(max_attemps=3):
 
 
     Klik M untuk memulai dan X untuk keluar dari program.
+
+    IMPORTANT NOTE:
+    Untuk melakukan Exit program hanya bisa dilakukan melalui
+    Menu ini. untuk mengakses kembali laman ini bisa dengan
+    menginput kode Logout pada Main Menu
+    Data yang telah diubah akan otomatis tersimpan
+    pada file csv setelah mengetik X pada Menu ini.
 
 
     =====================
@@ -326,7 +331,7 @@ def addProduct(database):
         Apakah data anda sudah sesuai ? = ''')
 
         if valid == 'yes':
-            passw = input('Masukkan password anda = ')
+            passw = getpass.getpass('Masukkan password anda = ')
             attempts = 0
             while passw != password:
                 attempts += 1
@@ -335,7 +340,7 @@ def addProduct(database):
                 if attempts >= 3:
                     print(input('Batas percobaan telah terlampaui! Ketik enter untuk mengulangi'))
                     clear_screen
-                    addProduct()  # Exit the password validation loop
+                    addProduct()  
 
             print("\nPRODUCT BARU BERHASIL DIDAFTARKAN!\n")
                 # append
@@ -420,7 +425,7 @@ def updProduct(database):
         if brandID == 'M':
             MainMenu()
 
-        passw = input('Masukkan password anda = ')
+        passw = getpass.getpass('Masukkan password anda = ')
         attempts = 0
         while passw != password:
             attempts += 1
@@ -429,7 +434,7 @@ def updProduct(database):
             if attempts >= 3:
                 print(input('Batas percobaan telah terlampaui! Ketik enter untuk mengulangi'))
                 clear_screen
-                MainMenu()  # Exit the password validation loop
+                MainMenu() 
 
     
         if brandID in database.keys():
@@ -547,7 +552,7 @@ def delProduct(database):
                 
                 check = pyip.inputYesNo(prompt="Apakah anda yakin ingin menghapus produk ini? (Y/N) :")
                 if check == 'yes':
-                    passw = input('Masukkan password anda = ')
+                    passw = getpass.getpass('Masukkan password anda = ')
                     attempts = 0
                     while passw != password:
                         attempts += 1
@@ -579,79 +584,7 @@ def delProduct(database):
             MainMenu()
         return(database)
     
-    def delbySeries(database):
-        '''
-        delete menggunakan Series'''
-        clear_screen()
-        header =  ('''
-        ======= WICIS =======
-            Delete a Series
 
-            Pada fitur ini anda bisa menghapus seluruh produk
-            didalam sebuah series yang sudah anda daftarkan 
-            pada database inventory.
-
-            Ketik A untuk melakukan penghapusan.
-
-            Disclaimer:
-
-            Fitur ini akan menghapus keseluruhan data dari semua 
-            produk dari Series yang anda input. 
-
-            Untuk menghapus quantitas produk bisa dilakukan melalui
-            fitur Update pada Main Menu. and bisa menginput option
-            code sebagai 'M' dan kembali ke Menu Utama
-        =====================
-        ''')
-        print(header)
-        inputMenu = pyip.inputChoice(prompt='Input Option Code : ',choices=['A','M'])
-        if inputMenu == 'A':
-            clear_screen()
-            print('====== PRODUCT DATABASE ======')
-            printInvent(database)
-            delSeries = input('Input Series yang ingin dihapus = ')
-            if delSeries.capitalize() in database.keys():
-                productFound = (f'''
-                  ====== PRODUCT DITEMUKAN ======
-                  Anda ingin menghapus produk:
-                  Series
-
-            ''')
-                print(productFound)
-                check = pyip.inputYesNo(prompt="Apakah anda yakin ingin menghapus produk ini? (Y/N) :")
-                if check == 'yes':
-                    passw = input('Masukkan password anda = ')
-                    attempts = 0
-                    while passw != password:
-                        attempts += 1
-                        print(f'Password yang anda masukkan salah! Attempts ({attempts}/3)')
-                        passw = input('Masukkan password anda = ')
-                        if attempts >= 3:
-                            input('Batas percobaan telah terlampaui! Ketik enter untuk mengulangi')
-                            clear_screen()
-                            delProduct(database)  
-
-                    clear_screen()
-                    print('====== PRODUCT DATABASE ======')
-                    printInvent(database)
-                    print(productFound)
-                    del database[delbySeries.upper()]
-                    print("\nPRODUCT BERHASIL DIHAPUS!\n")
-                    newdatabase = input('Tekan ENTER untuk melihat database baru : ')
-                    print(newdatabase)
-                    clear_screen()
-                    print('====== UPDATED DATABASE ======')
-                    printInvent(database)
-                    enter()
-                    delbyID(database)
-            else:
-                print('\n PRODUCT TIDAK DITEMUKAN \n')
-                enter()
-                delbyID(database)
-        else: 
-            MainMenu()
-        return(database)
-    
     # Main Delete Program
     clear_screen()
     header =  ('''
@@ -663,11 +596,11 @@ def delProduct(database):
         Anda bisa melakukan penghapusan berdasarkan Series 
         ataupun product satuan.
                
-        A. Delete a Product
-        B. Delete a Series
                
         Untuk menghapus quantitas produk bisa dilakukan melalui
         fitur Update pada Main Menu.
+               
+        Input A untuk menggunakan fitur ini.
 
         Fitur ini hanya dapat digunakan oleh user dengan status 
         'owner'. Apabila anda tidak termasuk user tersebut, silahkan
@@ -675,13 +608,10 @@ def delProduct(database):
     =====================
     ''')
     print(header)
-    menu = pyip.inputChoice(prompt = 'Input Option Code = ',choices=['A','B','M'])
+    menu = pyip.inputChoice(prompt = 'Input Option Code = ',choices=['A','M'])
     
     if menu == 'A':
         delbyID(database)
-    elif menu == 'B':
-        print('Not available yet')
-        enter()
         delProduct(database)
     elif menu == 'M':
         MainMenu()
@@ -837,7 +767,7 @@ def cashier(database):
         =====================
         ''')
 
-    
+# readme inside program
 def information():
     clear_screen()
     info = '''
@@ -1040,4 +970,4 @@ def run(database):
         dataWriter.writerows(database.values())
 
 database = get_db()
-loginput()
+run(database)
