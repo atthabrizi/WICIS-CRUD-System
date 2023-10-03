@@ -24,9 +24,14 @@ atthabrizi@gmail.com
 
 -------
 Dummy account
+
 Owner:
 username          : alyaa
+
 password          : obpalya
+
 Cashier
+
 username          : anggrek
+
 password          : anggrek
