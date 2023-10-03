@@ -21,3 +21,12 @@ Berikut adalah beberapa fitur yang bisa anda gunakan:
 
 Untuk memberikan feedback ataupun pertanyaan lebih dalam mohon hubungi
 atthabrizi@gmail.com
+
+-------
+Dummy account
+Owner:
+username          : alyaa
+password          : obpalya
+Cashier
+username          : anggrek
+password          : anggrek
