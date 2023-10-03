@@ -25,7 +25,8 @@ atthabrizi@gmail.com
 -------
 Dummy account
 
-Owner:
+Owner
+
 username          : alyaa
 
 password          : obpalya
