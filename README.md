@@ -23,16 +23,19 @@ Untuk memberikan feedback ataupun pertanyaan lebih dalam mohon hubungi
 atthabrizi@gmail.com
 
 -------
-Dummy account
-
-Owner
-
+**Dummy account
+**
+**Owner
+**
 username          : alyaa
 
 password          : obpalya
 
-Cashier
+**Cashier**
 
 username          : anggrek
 
 password          : anggrek
+
+=====
+Untuk mengakses database, path bisa diubah menjadi 'data/data_prod.csv'
