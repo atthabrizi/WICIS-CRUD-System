@@ -39,4 +39,3 @@ password          : anggrek
 
 =====
 
-Untuk mengakses database, path bisa diubah menjadi 'data/data_prod.csv'
