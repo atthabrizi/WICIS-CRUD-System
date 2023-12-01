@@ -15,7 +15,8 @@ def get_db():
     # membuat dict database kosong untuk mengextract data
     database = {}
     global PATH
-    PATH = r'C:\Users\attha\OneDrive\Documents\Dokumen Sementara (Nanti pindah hardisk)\Purwadhika JCDS-02\Capstone Projects\Module 1 - Programming\Reproject-Mode Malathi\data\data_prod.csv'
+    PATH = r'Reproject-Mode Malathi\data\data_prod.csv'
+    # PATH = r'..\data\data_prod.csv'
     with open(PATH, 'r') as file:
         # 
         dataReader = csv.reader(file, delimiter=";")
@@ -113,8 +114,7 @@ def loginput(max_attemps=3):
         save(database)
         print('Data yang anda ubah telah disimpan, ketik ENTER untuk meninggalkan program!\n')
         enter()
-        quit
-    return quit
+        
 
 # fungsi extensi
 def clear_screen():
@@ -300,15 +300,22 @@ def addProduct(database):
           
         newprod = {} # untuk menyetor data sementara
         newprod['Brand'] = pyip.inputChoice(prompt='Masukkan Brand dari product baru : ',choices=['OBP','BB'])
-        newprod['Nama Product'] = pyip.inputStr(prompt='Nama Product : ')
+        newprod['Nama Product'] = pyip.inputStr(prompt='Nama Product : ').capitalize()
         newprod['Series'] = pyip.inputStr(prompt='Nama Series : ')
         newprod['Type'] = pyip.inputStr(prompt='Nama Type : ')
-        newprod['Qty'] = pyip.inputInt(prompt='Quantity : ')
-        newprod['Harga'] = pyip.inputInt(prompt='Harga Jual : ')
-        newprod['COGS'] = pyip.inputInt(prompt='Harga Beli (HPP) : ')
-        newprod['ProductID'] = newprod['Brand'][:4] + newprod['Nama Product'][:2].upper() + newprod["Series"][:3].upper()
-        margin = (newprod['Harga']-newprod["COGS"])/(newprod["COGS"])*100
+        newprod['Qty'] = pyip.inputInt(prompt='Quantity : ',min=0)
+        newprod['Harga'] = pyip.inputInt(prompt='Harga Jual : ',min=0)
+        newprod['COGS'] = pyip.inputInt(prompt='Harga Beli (HPP) : ',min=0)
+        automated_productID = newprod['Brand'][:4] + newprod['Nama Product'][:2].upper() + newprod["Series"][:3].upper()
+        if automated_productID in database.keys():
+         newprod['ProductID'] = pyip.inputStr(prompt='''
+ProductID yang dihasilkan sistem otomasi telah terdaftar.
+Silahkan masukkan ProductID yang diinginkan:     
+''', blocklist=database['ProductID'])
+        else:
+            newprod['ProductID'] = newprod['Brand'][:4] + newprod['Nama Product'][:2].upper() + newprod["Series"][:3].upper()
 
+        margin = (newprod['Harga']-newprod["COGS"])/(newprod["COGS"])*100
         check = f'''
         === Silahkan cek ulang data yang telah anda masukkan ===
         ProductID = {newprod["ProductID"]}
@@ -440,29 +447,42 @@ def updProduct(database):
         if brandID in database.keys():
             key = pyip.inputMenu(prompt='Input bagian yang ingin diubah?\n\n',choices=choice,numbered=True)
             print(key)
+
             if key == 'ProductID':
                 newID = pyip.inputStr(prompt='Masukkan Product ID baru : ')
+                while newID in database.keys():
+                    print('ProductID yang anda masukkan telah terdaftar.')
+                    break_prompt = pyip.inputYesNo(prompt='Ingin mencoba Product ID lain? (Y/N): ')
+                    if not break_prompt:
+                        enter()
+                        break
+                    newID = pyip.inputStr(prompt='Masukkan Product ID baru : ')
                 database[brandID][0] = newID
-            elif key == 'Nama Product':
+        
+            if key == 'Nama Product':
                 newName = pyip.inputStr(prompt='Masukkan Nama Product baru : ')
-                database[brandID][1] = newName
+                if newName in database.keys():
+                    print('Produk dengan nama tersebut sudah terdaftar.')
+                    enter()
+                else:
+                    database[brandID][1] = newName.capitalize()
             elif key == 'Brand':
                 newBrand = pyip.inputChoice(prompt='Masukkan Brand baru (OBP/BB) : ',choices=['OBP','BB'])
                 database[brandID][2] = newBrand
             elif key == 'Series':
                 newSeries = pyip.inputStr(prompt='Masukkan Nama Series baru : ')
-                database[brandID][3] = newSeries
+                database[brandID][3] = newSeries.capitalize()
             elif key == 'Type':
                 newType = pyip.inputChoice(prompt='Masukkan Type Product baru [Atasan, Bawahan, Outer, Aksesoris, Raw]: ',choices=['Atasan', 'Bawahan', 'Outer', 'Aksesoris', 'Raw'])
                 database[brandID][4] = newType
             elif key == 'Qty':
-                newQty = pyip.inputInt(prompt='Masukkan Jumlah Product baru : ')
+                newQty = pyip.inputInt(prompt='Masukkan Jumlah Product baru : ',min=1)
                 database[brandID][5] = newQty
             elif key == 'Harga':
-                newHarga = pyip.inputInt(prompt='Masukkan Harga Product baru : ')
+                newHarga = pyip.inputInt(prompt='Masukkan Harga Product baru : ',min=1)
                 database[brandID][6] = newHarga
             elif key == 'COGS':
-                newCOGS = pyip.inputInt(prompt='Masukkan HPP Product baru : ')
+                newCOGS = pyip.inputInt(prompt='Masukkan HPP Product baru : ',min=1)
                 database[brandID][7] = newCOGS
             
             print(tabulate([database[brandID]],database['column'],tablefmt='fancy_grid'))
@@ -620,25 +640,26 @@ def delProduct(database):
 # Cashier funtion (Update Function extension)
 def cashier(database):
         cart = {} # [BrandID] : [ProductID;Nama Product;Brand;Series;Type;Qty;Harga;COGS]
-        def addItem(database,cart):
+        temp_database = database.copy()
+        def addItem(temp_database,cart):
             clear_screen()
             print('===CART===')
             print(tabulate(cart.items(),headers=['ProductID','Qty'],tablefmt='fancy_grid'))
             print('======INVENTORY======')
-            printInvent(database)
-            choice = list(database.keys()) + ['B']
+            printInvent(temp_database)
+            choice = list(temp_database.keys()) + ['B']
             brandID = pyip.inputChoice(prompt='Klik B untuk Checkout\nEnter BrandID : ',choices=choice)
             if brandID == 'B':
-                checkout(database,cart)
-            quant = pyip.inputInt('Jumlah item : ')
-            totalPrice = quant * database[brandID][6]
+                checkout(temp_database,cart)
+            quant = pyip.inputInt('Jumlah item : ', max=temp_database[brandID][5])
+            totalPrice = quant * temp_database[brandID][6]
             validate = f'''
             Anda akan memasukkan item ini kedalam keranjang
 
-            ProductID       : {database[brandID][0]}
-            Nama Product    : {database[brandID][1]}
+            ProductID       : {temp_database[brandID][0]}
+            Nama Product    : {temp_database[brandID][1]}
 
-            Harga           : {database[brandID][6]}
+            Harga           : {temp_database[brandID][6]}
             Jumlah          : {quant}
             Total Harga     : {totalPrice}
 
@@ -648,17 +669,22 @@ def cashier(database):
             Ketik F untuk membatalkan.'''
             print(validate)
             inputMenu = pyip.inputChoice(prompt='Input Option Code : ',choices=['A','F'])
+
             while True:
                 if inputMenu == 'A':
                     if brandID in cart:
                         cart[brandID] += quant
+                        temp_database[brandID][5] -= quant
                     else:
                         cart[brandID] = quant
+                        temp_database[brandID][5] -= quant
+
                     print(tabulate(cart.items(),tablefmt='fancy_grid'))
 
-                    addItem(database,cart)
+                    addItem(temp_database,cart)
                 elif inputMenu == 'F':
                     break         
+
         def checkout(database,cart):
             clear_screen()
             print('=== Berikut adalah item pada keranjang anda ===')
@@ -683,22 +709,34 @@ def cashier(database):
                     print(f'''{product[1]} ({product[2]}) 
                           - Jumlah: {quant} 
                           - Total Harga: {itemPrice}''')
+                print(f'Total Belanja Anda: Rp. {totalPrice}')
+
                 finalize = pyip.inputChoice(prompt='Ketik A untuk checkout\n Ketik F untuk membatalkan : ',choices=['A','F'])
                 if finalize == 'A':
                     # update inventory 
+                    while True:
+                        pay = pyip.inputInt(prompt='Masukkan Uang anda!\n Rp.' )
+                        if pay > totalPrice:
+                            print(f'Anda memiliki kembalian sebanyak Rp. {pay-totalPrice}')
+                            break
+                        elif pay == totalPrice:
+                            print('Pembelian anda berhasil!')
+                            break
+                        elif pay < totalPrice:
+                            print(f'Uang anda kurang Rp. {(pay-totalPrice)*-1}')
+                    
                     for brandID, quant in cart.items():
                      q = database[brandID][5]
                      q -= quant
-                    print(f'Total Belanja Anda: {totalPrice}')
-                    MainMenu()
-                    print(input('Terima kasih atas pembelian Anda!'))
-                    addItem(database)
+
+                    print(input('Terima kasih atas pembelian Anda!')) 
+                    MainMenu() 
                 if finalize == 'F':
                     MainMenu()  
             elif inputMenu == 'B':
-                addItem(database)
+                addItem(temp_database, cart)
             elif inputMenu == 'F':
-                cashier(database)
+                MainMenu()
             
         header =  ('''
         ======= WICIS =======
@@ -965,7 +1003,7 @@ def run(database):
 
     #write data
     with open(PATH, 'w') as file:
-        PATH = r'C:\Users\attha\OneDrive\Documents\Dokumen Sementara (Nanti pindah hardisk)\Purwadhika JCDS-02\Capstone Projects\Module 1 - Programming\Reproject-Mode Malathi\data\data_prod.csv'
+        PATH = r'..\data\data_prod.csv'
         dataWriter = csv.writer(file, delimiter=';', lineterminator='\n')
         dataWriter.writerows(database.values())
 
