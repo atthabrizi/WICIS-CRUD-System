@@ -1,4 +1,4 @@
-======= WICIS =======
+# Widely Integrated Cashier and Inventory System
           
 Widely Integrated Cashier and Inventory System (WICIS) adalah sebuah project platform
 yang ditujukan untuk membantu sistem penyimpanan database persediaan yang menyediakan
@@ -22,20 +22,11 @@ Berikut adalah beberapa fitur yang bisa anda gunakan:
 Untuk memberikan feedback ataupun pertanyaan lebih dalam mohon hubungi
 atthabrizi@gmail.com
 
--------
-**Dummy account**
+## **Dummy account**
 
-**Owner**
+| **Status**                    | **Username** | **Password**|
+|---------------------------------------|---------------------------------------------------------------------|-------------------------------|
+| **Owner**          | alyaa | obpalya
+| **Cashier** | anggrek | anggrek |
 
-username          : alyaa
-
-password          : obpalya
-
-**Cashier**
-
-username          : anggrek
-
-password          : anggrek
-
-=====
 
